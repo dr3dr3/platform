@@ -1,14 +1,17 @@
 # ADR-001: Terraform Deployment Workflow - GitHub Actions vs Terraform Cloud VCS Integration
 
 ## Status
+
 Proposed
 
 ## Date
+
 2025-11-20
 
 ## Context
 
 We are establishing a Terraform repository to manage AWS infrastructure foundations using an Infrastructure-as-Code (IaC) approach. The infrastructure will include:
+
 - AWS EKS clusters
 - IAM roles and permissions
 - Supporting AWS services and resources
@@ -23,6 +26,7 @@ We will use Terraform Cloud for state management and remote execution. However, 
 ### Current Platform Context
 
 Our existing platform architecture (as documented in `platform-reference-architecture-v2.md` and `best-practices.md`) includes:
+
 - **CI/CD**: GitHub Actions as the standard pipeline platform
 - **Version Control**: GitHub for all repositories
 - **Service Catalog**: Port.io for unified platform metadata and observability
@@ -32,7 +36,8 @@ Our existing platform architecture (as documented in `platform-reference-archite
 ### Best Practices Requirements
 
 From `best-practices.md`, our desired Terraform workflow includes:
-```
+
+```text
 Developer → git push → GitHub Actions
   ├── terraform fmt -check (formatting)
   ├── tfsec (security scanning)
@@ -47,6 +52,7 @@ Developer → git push → GitHub Actions
 **We will use GitHub Actions to orchestrate the Terraform deployment workflow, with Terraform Cloud providing state management and remote execution.**
 
 GitHub Actions will:
+
 - Control the entire pipeline workflow
 - Execute security scanning (tfsec, checkov)
 - Perform Terraform validation and formatting checks
@@ -55,6 +61,7 @@ GitHub Actions will:
 - Manage notifications and integrations
 
 Terraform Cloud will:
+
 - Manage Terraform state
 - Provide remote execution environment
 - Handle state locking
@@ -89,47 +96,55 @@ Terraform Cloud will:
 
 ### Specific Advantages
 
-**Control and Customization**
+#### Control and Customization
+
 - Complete control over workflow steps and ordering
 - Ability to add pre-flight and post-deployment actions
 - Custom approval gates using GitHub Environments
 - Integration with third-party tools and services
 
-**Developer Experience**
+#### Developer Experience
+
 - Developers already familiar with GitHub Actions
 - PR comments with plan output for review
 - Consistent interface across all repository types
 - GitHub native approval workflows
 
-**Observability and Debugging**
+#### Observability and Debugging
+
 - Detailed logs in GitHub Actions UI
 - Easy correlation between code changes and infrastructure deployments
 - Integration with existing monitoring and alerting
 
-**Cost Optimization**
+#### Cost Optimization
+
 - GitHub Actions minutes included in current plan
 - Terraform Cloud free tier for state management
 - No additional tooling costs
 
 ### Trade-offs Accepted
 
-**Increased Complexity**
+#### Increased Complexity
+
 - More configuration required than native VCS integration
 - Need to maintain GitHub Actions workflow definitions
 - Two systems in the critical path (GitHub + Terraform Cloud)
 
-**Additional Token Management**
+#### Additional Token Management
+
 - Terraform Cloud API tokens stored in GitHub Secrets
 - Requires rotation and lifecycle management
 
-**Potential Reliability**
+#### Potential Reliability
+
 - Dependency on both GitHub and Terraform Cloud availability
 - Mitigation: Both are enterprise-grade SaaS platforms with high SLA
 
 ## Implementation
 
 ### Repository Structure
-```
+
+```text
 terraform-infrastructure/
 ├── .github/
 │   └── workflows/
@@ -147,6 +162,7 @@ terraform-infrastructure/
 ### Workflow Pattern
 
 **Pull Request Flow:**
+
 1. Developer opens PR with infrastructure changes
 2. GitHub Actions triggered automatically
 3. Run formatting check (`terraform fmt -check`)
@@ -157,6 +173,7 @@ terraform-infrastructure/
 8. Block merge if security issues found
 
 **Deployment Flow (main branch):**
+
 1. PR merged to main branch
 2. GitHub Actions triggered automatically
 3. Re-run all validation and security checks
@@ -169,6 +186,7 @@ terraform-infrastructure/
 ### Required Secrets
 
 GitHub repository secrets:
+
 - `TF_API_TOKEN`: Terraform Cloud API token
 - `PORT_CLIENT_ID`: Port.io client ID
 - `PORT_CLIENT_SECRET`: Port.io client secret
@@ -178,6 +196,7 @@ GitHub repository secrets:
 ### Terraform Cloud Configuration
 
 Workspace settings:
+
 - **Execution Mode**: Remote
 - **Auto Apply**: Disabled (controlled by GitHub Actions)
 - **VCS Connection**: Optional (for visibility, not for triggers)
@@ -215,6 +234,7 @@ Workspace settings:
 **Description**: Use Terraform Cloud's built-in VCS integration to automatically trigger runs on repository changes.
 
 **Rejected Because**:
+
 - Limited ability to integrate security scanning tools
 - Difficult to update Port.io service catalog automatically
 - Creates inconsistency with application deployment patterns
@@ -222,6 +242,7 @@ Workspace settings:
 - Developers would need to context-switch between GitHub and Terraform Cloud UIs
 
 **When to Reconsider**:
+
 - If GitHub Actions becomes cost-prohibitive
 - If Terraform Cloud adds native support for external security scanning
 - If team size is very small (< 5 developers) and simplicity is paramount
@@ -231,6 +252,7 @@ Workspace settings:
 **Description**: Use native VCS integration but rely on Sentinel policies for security and compliance.
 
 **Rejected Because**:
+
 - Sentinel is a paid Terraform Cloud feature
 - Doesn't provide pre-commit feedback (runs after Terraform plan)
 - Steeper learning curve (HCL-based policy language)
@@ -242,6 +264,7 @@ Workspace settings:
 **Description**: Use a different CI/CD platform for Terraform workflows.
 
 **Rejected Because**:
+
 - Introduces additional platform to maintain
 - Inconsistent with existing GitHub-centric workflow
 - Additional cost and operational overhead
@@ -253,6 +276,7 @@ Workspace settings:
 **Description**: Deploy Atlantis for Terraform automation with PR-based workflows.
 
 **Rejected Because**:
+
 - Requires additional infrastructure to host and maintain
 - Operational overhead for platform team
 - Another service to monitor and secure
@@ -262,25 +286,30 @@ Workspace settings:
 ## Migration Strategy
 
 ### Phase 1: Initial Implementation (Week 1-2)
+
 - Create GitHub Actions workflows for Terraform validation
 - Configure Terraform Cloud workspaces with remote execution
 - Set up security scanning (tfsec, checkov)
 - Test with non-production workspaces
 
 ### Phase 2: Integration (Week 3-4)
+
 - Add Port.io entity updates to workflows
 - Configure GitHub Environments for production approvals
 - Set up notifications (Slack, Port.io)
 - Document workflow for development team
 
 ### Phase 3: Production Rollout (Week 5-6)
+
 - Deploy EKS infrastructure using new workflow
 - Monitor and refine approval processes
 - Collect feedback from platform team
 - Document lessons learned
 
 ### Rollback Plan
+
 If GitHub Actions approach proves problematic:
+
 1. Disable GitHub Actions workflows
 2. Enable Terraform Cloud VCS integration
 3. Manually update Port.io entities until automation is resolved
@@ -298,6 +327,7 @@ If GitHub Actions approach proves problematic:
 ## Review and Update
 
 This ADR should be reviewed:
+
 - After 3 months of production usage
 - If Terraform Cloud releases significant new features
 - If GitHub Actions pricing or features change significantly

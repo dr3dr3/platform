@@ -1,0 +1,33 @@
+{
+    "name": "DR3DR3-PLATFORM",
+
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+
+    "workspaceFolder": "/workspace",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.live-server",
+                "esbenp.prettier-vscode",
+                "github.vscode-pull-request-github",
+                "ms-azuretools.vscode-docker",
+                "github.copilot",
+                "Anthropic.claude-code",
+                "Continue.continue"
+            ],
+            "settings": {
+                "editor.fontFamily": "FiraCode Nerd Font, monospace",
+                "editor.fontSize": 14,
+                "terminal.integrated.defaultProfile.linux": "bash", 
+                "terminal.integrated.profiles.linux": {
+                    "fish": {
+                        "path": "/usr/bin/fish"
+                    }
+                }
+            }
+        }
+    }
+}

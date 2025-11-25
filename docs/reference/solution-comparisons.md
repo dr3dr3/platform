@@ -3,6 +3,7 @@
 This document compares various vendor solutions and alternatives for components in the [Platform Reference Architecture](./platform-reference-architecture.md). Use this to understand why certain technologies were chosen and what alternatives exist.
 
 ## Table of Contents
+
 - [Development Environments](#development-environments)
 - [Secrets Management](#secrets-management)
 - [Observability Backends](#observability-backends)
@@ -16,6 +17,7 @@ This document compares various vendor solutions and alternatives for components 
 #### GitHub Codespaces (Current Choice)
 
 **Pros:**
+
 - Native GitHub integration, seamless workflow from code to environment
 - Strong VS Code/devcontainer support
 - Generous free tier (60 hours/month for Pro, 120 hours/month for Teams)
@@ -23,6 +25,7 @@ This document compares various vendor solutions and alternatives for components 
 - Built-in secrets management
 
 **Cons:**
+
 - Limited to GitHub ecosystem
 - Can become expensive at scale without proper policies
 - Fewer machine type options compared to dedicated solutions
@@ -34,6 +37,7 @@ This document compares various vendor solutions and alternatives for components 
 #### Gitpod (Alternative)
 
 **Pros:**
+
 - Multi-platform support (GitHub, GitLab, Bitbucket)
 - Superior prebuild system with incremental updates
 - Better resource optimization and cost controls
@@ -41,6 +45,7 @@ This document compares various vendor solutions and alternatives for components 
 - Self-hosted option available
 
 **Cons:**
+
 - Another tool to manage if heavily invested in GitHub
 - Smaller ecosystem compared to GitHub Codespaces
 
@@ -51,12 +56,14 @@ This document compares various vendor solutions and alternatives for components 
 #### DevPod with Cloud Providers (Hybrid Approach)
 
 **Pros:**
+
 - Unified CLI/UX for local and cloud environments
 - Freedom to choose any cloud provider (AWS, GCP, Azure, DigitalOcean)
 - Cost-effective - direct cloud VM pricing without markup
 - Complete control over machine types and configurations
 
 **Cons:**
+
 - Requires cloud infrastructure management
 - No built-in prebuild system
 - Less integrated experience compared to Codespaces
@@ -68,6 +75,7 @@ This document compares various vendor solutions and alternatives for components 
 #### Coder (Enterprise Option)
 
 **Pros:**
+
 - Self-hosted with complete control
 - Terraform-based provisioning for any infrastructure
 - Strong enterprise features (SSO, RBAC, audit logging)
@@ -75,6 +83,7 @@ This document compares various vendor solutions and alternatives for components 
 - Best cost control for large teams
 
 **Cons:**
+
 - Requires platform engineering effort to operate
 - Larger upfront investment
 - Needs dedicated infrastructure
@@ -86,16 +95,19 @@ This document compares various vendor solutions and alternatives for components 
 ### Decision Criteria
 
 **Stick with Codespaces if:**
+
 - Team < 50 developers
 - Fully committed to GitHub ecosystem
 - Prefer managed solution over self-hosting
 
 **Switch to Gitpod if:**
+
 - Using multiple Git providers
 - Need better cost optimization at scale
 - Want self-hosted option without heavy operational lift
 
 **Move to Coder if:**
+
 - Team > 100 developers
 - Require strict compliance/data residency
 - Have platform engineering team to operate infrastructure
@@ -105,6 +117,7 @@ This document compares various vendor solutions and alternatives for components 
 ### AWS Secrets Manager (Current Choice)
 
 **Pros:**
+
 - Fully managed, no operational overhead
 - Native AWS integration
 - Automatic encryption with KMS
@@ -112,6 +125,7 @@ This document compares various vendor solutions and alternatives for components 
 - CloudTrail audit logging
 
 **Cons:**
+
 - Cost: $0.40 per secret per month
 - Limited to AWS ecosystem
 - Basic feature set compared to Vault
@@ -127,6 +141,7 @@ This document compares various vendor solutions and alternatives for components 
 #### Self-Hosted Vault
 
 **Pros:**
+
 - Advanced features: dynamic secrets, PKI, encryption as a service
 - Multi-cloud and on-premise support
 - Fine-grained access control policies
@@ -134,6 +149,7 @@ This document compares various vendor solutions and alternatives for components 
 - More cost-effective at scale (>50 secrets)
 
 **Cons:**
+
 - Operational overhead: unsealing, backups, upgrades
 - Requires high availability setup for production
 - Learning curve for policy language (HCL)
@@ -147,11 +163,13 @@ This document compares various vendor solutions and alternatives for components 
 #### Vault HCP (Managed)
 
 **Pros:**
+
 - All Vault features without operational overhead
 - Automatic updates and backups
 - HashiCorp support
 
 **Cons:**
+
 - Expensive: Development tier ~$0.50/hour (~$360/month)
 - Not cost-effective for small deployments
 
@@ -164,11 +182,13 @@ This document compares various vendor solutions and alternatives for components 
 ### AWS Systems Manager Parameter Store
 
 **Pros:**
+
 - Free tier: 10,000 parameters
 - Simple key-value storage
 - AWS integration
 
 **Cons:**
+
 - Limited to 10,000 characters per parameter
 - No automatic rotation
 - Not designed for sensitive secrets (use for config)
@@ -182,11 +202,13 @@ This document compares various vendor solutions and alternatives for components 
 ### Recommendation
 
 **Phase 1 (Current):** AWS Secrets Manager
+
 - Predictable costs
 - Minimal operational overhead
 - Good for getting started
 
 **Phase 2 (Scale):** Migrate to self-hosted Vault if:
+
 - Secret count > 40-50
 - Need dynamic secrets (database credentials, cloud credentials)
 - Want to learn Vault for career development
@@ -201,12 +223,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Prometheus + Grafana Mimir (Current Choice)
 
 **Prometheus (Short-term):**
+
 - Open source, CNCF graduated
 - PromQL query language (industry standard)
 - Local storage (15-30 days retention)
 - FREE (compute cost only)
 
 **Grafana Mimir (Long-term):**
+
 - Prometheus-compatible long-term storage
 - S3-backed, horizontally scalable
 - Free tier: 10k series, 14-day retention
@@ -219,12 +243,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### AWS Managed Prometheus (AMP)
 
 **Pros:**
+
 - Fully managed
 - Native OTLP ingestion
 - Prometheus-compatible
 - No operational overhead
 
 **Cons:**
+
 - Cost: ~$0.30 per million samples ingested
 - AWS lock-in
 - Can become expensive at scale
@@ -236,11 +262,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Thanos / Cortex
 
 **Pros:**
+
 - Open source Prometheus long-term storage
 - S3-compatible backends
 - Free (compute only)
 
 **Cons:**
+
 - More complex to operate than Mimir
 - Older architecture
 
@@ -253,6 +281,7 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Grafana Loki (Current Choice)
 
 **Pros:**
+
 - Cost-effective: indexes only metadata, not full text
 - S3-backed storage
 - Native OTLP support (v2.8+)
@@ -260,6 +289,7 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 - Integrated with Grafana
 
 **Cons:**
+
 - Less mature than Elasticsearch
 - Query performance depends on label design
 - No full-text search indexing
@@ -271,12 +301,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Elasticsearch / OpenSearch
 
 **Pros:**
+
 - Full-text search
 - Mature ecosystem
 - Rich query capabilities
 - Large community
 
 **Cons:**
+
 - Resource-intensive (memory, storage)
 - More expensive to operate
 - Licensing complexity (Elasticsearch)
@@ -288,11 +320,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### AWS CloudWatch Logs
 
 **Pros:**
+
 - Fully managed
 - Native AWS integration
 - CloudWatch Logs Insights
 
 **Cons:**
+
 - Expensive for high-volume logs
 - $0.50/GB ingestion + $0.03/GB storage
 - Lock-in to AWS
@@ -306,6 +340,7 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Grafana Tempo (Current Choice)
 
 **Pros:**
+
 - OTLP-native, designed for OpenTelemetry
 - S3-backed, very cost-effective
 - No indexing (uses trace IDs and metadata)
@@ -313,6 +348,7 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 - TraceQL for queries
 
 **Cons:**
+
 - Newer, less mature than Jaeger
 - Requires good metadata for discovery
 
@@ -323,11 +359,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Jaeger
 
 **Pros:**
+
 - CNCF project, mature
 - Better UI for trace exploration
 - More storage backend options
 
 **Cons:**
+
 - More resource-intensive than Tempo
 - Older architecture
 
@@ -338,11 +376,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### AWS X-Ray
 
 **Pros:**
+
 - Native AWS service tracing
 - Visualize AWS service dependencies
 - Free tier: 100,000 traces/month
 
 **Cons:**
+
 - AWS-specific
 - Limited application tracing features
 - Proprietary format (but supports OTLP)
@@ -356,17 +396,20 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Grafana Cloud (Recommended for Getting Started)
 
 **Free Tier:**
+
 - 10k metrics series (14-day retention)
 - 50GB logs (14-day retention)
 - 50GB traces (14-day retention)
 - 3 active users
 
 **Pros:**
+
 - Zero operational overhead
 - All three signals in one place
 - Good for learning and small projects
 
 **Cons:**
+
 - Can become expensive at scale
 - Data egress limitations
 
@@ -377,11 +420,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Datadog / New Relic / Dynatrace
 
 **Pros:**
+
 - Feature-rich, enterprise-grade
 - AI-powered insights
 - Excellent UIs
 
 **Cons:**
+
 - Very expensive ($15-50+ per host/month)
 - Vendor lock-in
 - Overkill for small teams
@@ -397,12 +442,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Kyverno (Current Choice)
 
 **Pros:**
+
 - YAML-based policies (no new language)
 - Validate, mutate, generate resources
 - Easy to learn and use
 - CNCF project
 
 **Cons:**
+
 - Less powerful than OPA for complex logic
 - Kubernetes-specific
 
@@ -413,11 +460,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Open Policy Agent (OPA) + Gatekeeper
 
 **Pros:**
+
 - More powerful policy language (Rego)
 - Works beyond Kubernetes
 - Strong community
 
 **Cons:**
+
 - Steeper learning curve
 - Rego language required
 
@@ -432,12 +481,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Checkov (Current Choice for Terraform)
 
 **Pros:**
+
 - Comprehensive policy library
 - Python-based custom policies
 - Multi-IaC support (Terraform, CloudFormation, Kubernetes)
 - Free and open source
 
 **Cons:**
+
 - Can be slow on large codebases
 - Some false positives
 
@@ -448,11 +499,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### TFSec
 
 **Pros:**
+
 - Fast Terraform-specific scanning
 - Good security coverage
 - Easy to integrate in CI/CD
 
 **Cons:**
+
 - Terraform-only
 - Less comprehensive than Checkov
 
@@ -463,10 +516,12 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Terraform Sentinel
 
 **Pros:**
+
 - HashiCorp's official policy framework
 - Deep Terraform integration
 
 **Cons:**
+
 - Requires Terraform Cloud/Enterprise
 - Not free
 
@@ -483,12 +538,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### SonarCloud (Recommended)
 
 **Pros:**
+
 - Free for public repositories
 - Free for private repos up to 100k LOC
 - Code quality + security
 - Good IDE integration
 
 **Cons:**
+
 - Limited free tier for private repos
 - Some language support gaps
 
@@ -499,12 +556,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Semgrep
 
 **Pros:**
+
 - Fast, lightweight
 - Custom rules support
 - 2000+ community rules
 - Language-agnostic
 
 **Cons:**
+
 - Less comprehensive than SonarCloud
 - Cloud version limits on free tier
 
@@ -515,11 +574,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### GitHub Advanced Security (GHAS)
 
 **Pros:**
+
 - Native GitHub integration
 - CodeQL semantic analysis
 - Dependency scanning (Dependabot)
 
 **Cons:**
+
 - FREE for public repos only
 - $49/committer/month for private repos (expensive)
 
@@ -532,12 +593,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Snyk (Recommended)
 
 **Pros:**
+
 - Excellent vulnerability database
 - Fix PRs automatically generated
 - Free tier: 200 tests/month for private repos
 - Multi-language support
 
 **Cons:**
+
 - Limited free tier
 - Can be expensive at scale
 
@@ -548,11 +611,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Dependabot (GitHub Native)
 
 **Pros:**
+
 - FREE for all GitHub repos
 - Automated dependency update PRs
 - Security alerts
 
 **Cons:**
+
 - Basic features compared to Snyk
 - GitHub-only
 
@@ -567,12 +632,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Trivy (Recommended)
 
 **Pros:**
+
 - Comprehensive: images, IaC, filesystems
 - Fast and accurate
 - Free and open source
 - Easy CI/CD integration
 
 **Cons:**
+
 - Command-line focused
 - Less reporting than commercial tools
 
@@ -583,11 +650,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Grype (Alternative)
 
 **Pros:**
+
 - Fast vulnerability scanning
 - Good accuracy
 - Open source
 
 **Cons:**
+
 - Container images only (not as comprehensive as Trivy)
 
 **Best for:** Container image scanning only
@@ -597,11 +666,13 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### AWS ECR Scanning
 
 **Pros:**
+
 - Native ECR integration
 - Basic scanning included
 - Enhanced scanning via Inspector
 
 **Cons:**
+
 - Basic scanning limited
 - Enhanced: $0.09/image scan
 
@@ -616,12 +687,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 #### Falco (Recommended)
 
 **Pros:**
+
 - CNCF graduated project
 - Real-time threat detection
 - Rule-based detection
 - Kubernetes-native
 
 **Cons:**
+
 - Requires tuning to reduce noise
 - Learning curve for rules
 
@@ -629,7 +702,8 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 
 **Pricing:** FREE
 
-**Alternatives:** 
+**Alternatives:**
+
 - Tetragon (eBPF-based, more advanced)
 - Sysdig (commercial, Falco-based)
 
@@ -638,12 +712,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 ### When to Choose Self-Hosted vs Managed
 
 **Self-Host If:**
+
 - Cost-sensitive (personal projects, startups)
 - Have platform engineering expertise
 - Want maximum control and customization
 - Multi-cloud or hybrid cloud strategy
 
 **Managed If:**
+
 - Operational overhead is concern
 - Prefer predictable pricing
 - Lack expertise to operate tools
@@ -652,12 +728,14 @@ All solutions compared support OpenTelemetry (OTLP) natively.
 ### When to Use Free Tier vs Paid
 
 **Free Tier Sufficient If:**
+
 - < 10 developers
 - < 20 services
 - Moderate data volumes
 - Can accept limitations
 
 **Paid Makes Sense If:**
+
 - Scale exceeds free tiers
 - Need SLAs and support
 - Advanced features required
